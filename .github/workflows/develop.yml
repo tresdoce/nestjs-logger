@@ -1,0 +1,78 @@
+name: "CI/CD Develop"
+
+on:
+  push:
+    branches: [ develop ]
+  pull_request:
+    branches: [ develop ]
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: "⚙ Set up Node.js"
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14.x'
+      - name: "✅ Checkout repository"
+        uses: actions/checkout@v2
+
+  build:
+    needs: setup
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: "💾 Restore Dependencies from cache"
+        uses: actions/cache@v2
+        with:
+          path: |
+            node_modules
+            */*/node_modules
+          key: ${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}
+
+      - name: "📦 Install Dependencies"
+        run: npm install
+
+      - name: "🔦 Lint"
+        run: npm run lint
+
+      - name: "🔨 Build"
+        run: npm run build
+
+      - name: "👨‍💻 Run Test"
+        run: npm run test
+        env:
+          NODE_ENV: 'test'
+          MONGO_CONNECTION: ${{ secrets.MONGO_CONNECTION }}
+          MONGO_USER: ${{ secrets.MONGO_USER }}
+          MONGO_PASSWORD: ${{ secrets.MONGO_PASSWORD }}
+          MONGO_HOST: ${{ secrets.MONGO_HOST }}
+          #MONGO_PORT: ${{ secrets.MONGO_PORT }}
+          MONGO_DB_NAME: ${{ secrets.MONGO_DB_NAME }}
+
+      - name: "📊 Upload coverage report to Codecov"
+        uses: codecov/codecov-action@v1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+
+      - name: "📊 SonarCloud Scan"
+        uses: SonarSource/sonarcloud-github-action@master
+        with:
+          args: >
+            -Dsonar.organization=${{ github.event.repository.owner.name }}
+            -Dsonar.projectKey=${{ github.event.repository.owner.name }}_${{ github.event.repository.name }}
+            -Dsonar.projectName=${{ github.event.repository.owner.name }}_${{ github.event.repository.name }}
+            -Dsonar.projectVersion=1.0
+            -Dsonar.sourceEncoding=UTF-8
+            -Dsonar.sources=./src
+            -Dsonar.exclusions=**/*.bin,node_modules/**,test/**,**/__test__/**,**/__mocks__/**,src/index.ts
+            -Dsonar.coverage.exclusions=node_modules/**,test/**,**/__test__/**,**/__mocks__/**,src/index.ts
+            -Dsonar.testExecutionReportPaths=test-report.xml
+            -Dsonar.typescript.lcov.reportPaths=./coverage/lcov.info
+            -Dsonar.javascript.lcov.reportPaths=./coverage/lcov.info
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
