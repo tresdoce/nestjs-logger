@@ -52,6 +52,13 @@ describe('LoggingService development', () => {
     expect(loggingService.getGenericLog('info')).toHaveProperty('log_level');
   });
 
+  it('Should return a GenericLog object with timestamp', () => {
+    loggingService.readFile = jest.fn().mockImplementation(() => mockedManifest);
+    expect(loggingService.getGenericLog('info', 'DEFAULT', 25451233144)).toHaveProperty(
+      'log_level',
+    );
+  });
+
   it('Should log a simply info level message', () => {
     const spy = jest.spyOn(loggingService, 'log');
     loggingService.readFile = jest.fn().mockImplementation(() => mockedManifest);
