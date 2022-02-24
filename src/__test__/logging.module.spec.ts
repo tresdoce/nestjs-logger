@@ -7,9 +7,6 @@ const mockedConfig = {
     server: {
       isProd: false,
     },
-    elasticConfig: {
-      a: 'test',
-    },
   },
 };
 
