@@ -29,9 +29,10 @@ export class LoggingService implements LoggerService {
       });
     }
   }
-  readFile(pathSegment: string, filename: string) {
+
+  public readFile(pathSegment: string, filename: string) {
     const file = path.resolve(pathSegment, filename);
-    return JSON.parse(fs.readFileSync(file, 'utf-8'));
+    return JSON.parse(fs.readFileSync(file, { encoding: 'utf8' }));
   }
 
   public log(message: any) {

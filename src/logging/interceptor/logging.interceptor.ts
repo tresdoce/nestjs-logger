@@ -16,6 +16,8 @@ import { LoggingService } from '../service/logging.service';
 export class LoggingInterceptor implements NestInterceptor {
   private request: any;
   private response: any;
+  private requestLog: any;
+  private responseLog: any;
 
   constructor(private readonly loggingService: LoggingService) {}
 
@@ -29,8 +31,8 @@ export class LoggingInterceptor implements NestInterceptor {
       tap((response) => {
         if (_.isUndefined(excludePaths.find((path) => _.startsWith(this.request.path, path)))) {
           const requestDuration = Date.now() - timeRequest;
-          let requestLog = this.addRequestLogs(this.request, context, timeRequest, requestDuration);
-          let responseLog = this.addResponseLogs(
+          this.addRequestLogs(this.request, context, timeRequest, requestDuration);
+          this.addResponseLogs(
             this.request,
             this.response,
             response,
@@ -38,8 +40,8 @@ export class LoggingInterceptor implements NestInterceptor {
             timeRequest,
             requestDuration,
           );
-          this.loggingService.log(requestLog);
-          this.loggingService.log(responseLog);
+          this.loggingService.log(this.requestLog);
+          this.loggingService.log(this.responseLog);
         }
       }),
     );
@@ -51,19 +53,19 @@ export class LoggingInterceptor implements NestInterceptor {
     timeRequest: number,
     requestDuration: number,
   ): void {
-    let requestLog = this.loggingService.getGenericLog('info', 'RESPONSE', timeRequest);
-    requestLog['thread_name'] = '-';
-    requestLog['message'] = 'Request executed';
-    requestLog['http_request_execution_context_class'] = context.getClass().name;
-    requestLog['http_request_execution_context_handler'] = context.getHandler().name;
-    requestLog['http_request_execution_context_type'] = context.getType();
-    requestLog['http_request_body'] = request.body;
-    requestLog['http_request_body_stringify'] = JSON.stringify(request.body);
-    requestLog['http_request_headers'] = request.headers;
-    requestLog['http_request_headers_stringify'] = JSON.stringify(request.headers);
-    requestLog['http_duration'] = Date.now() - requestDuration;
-    LoggingInterceptor.addHttpInfo(request, requestLog);
-    LoggingInterceptor.addTracingHeaders(request, requestLog);
+    this.requestLog = this.loggingService.getGenericLog('info', 'RESPONSE', timeRequest);
+    this.requestLog['thread_name'] = '-';
+    this.requestLog['message'] = 'Request executed';
+    this.requestLog['http_request_execution_context_class'] = context.getClass().name;
+    this.requestLog['http_request_execution_context_handler'] = context.getHandler().name;
+    this.requestLog['http_request_execution_context_type'] = context.getType();
+    this.requestLog['http_request_body'] = request.body;
+    this.requestLog['http_request_body_stringify'] = JSON.stringify(request.body);
+    this.requestLog['http_request_headers'] = request.headers;
+    this.requestLog['http_request_headers_stringify'] = JSON.stringify(request.headers);
+    this.requestLog['http_duration'] = Date.now() - requestDuration;
+    LoggingInterceptor.addHttpInfo(request, this.requestLog);
+    LoggingInterceptor.addTracingHeaders(request, this.requestLog);
   }
 
   private addResponseLogs(
@@ -73,22 +75,22 @@ export class LoggingInterceptor implements NestInterceptor {
     context: ExecutionContext,
     timeRequest: number,
     requestDuration: number,
-  ) {
-    let responseLog = this.loggingService.getGenericLog('info', 'RESPONSE', timeRequest);
-    responseLog['thread_name'] = '-';
-    responseLog['message'] = 'Response generated';
-    responseLog['http_response_execution_context_class'] = context.getClass().name;
-    responseLog['http_response_execution_context_handler'] = context.getHandler().name;
-    responseLog['http_response_execution_context_type'] = context.getType();
-    responseLog['http_response_status_code'] = response.statusCode;
-    responseLog['http_response_status_phrase'] = HttpStatus[response.statusCode];
-    responseLog['http_response_body'] = body;
-    responseLog['http_response_body_stringify'] = JSON.stringify(body);
-    responseLog['http_response_headers'] = response.getHeaders();
-    responseLog['http_response_headers_stringify'] = JSON.stringify(response.getHeaders());
-    responseLog['http_duration'] = Date.now() - requestDuration;
-    LoggingInterceptor.addHttpInfo(request, responseLog);
-    LoggingInterceptor.addTracingHeaders(request, responseLog);
+  ): void {
+    this.responseLog = this.loggingService.getGenericLog('info', 'RESPONSE', timeRequest);
+    this.responseLog['thread_name'] = '-';
+    this.responseLog['message'] = 'Response generated';
+    this.responseLog['http_response_execution_context_class'] = context.getClass().name;
+    this.responseLog['http_response_execution_context_handler'] = context.getHandler().name;
+    this.responseLog['http_response_execution_context_type'] = context.getType();
+    this.responseLog['http_response_status_code'] = response.statusCode;
+    this.responseLog['http_response_status_phrase'] = HttpStatus[response.statusCode];
+    this.responseLog['http_response_body'] = body;
+    this.responseLog['http_response_body_stringify'] = JSON.stringify(body);
+    this.responseLog['http_response_headers'] = response.getHeaders();
+    this.responseLog['http_response_headers_stringify'] = JSON.stringify(response.getHeaders());
+    this.responseLog['http_duration'] = Date.now() - requestDuration;
+    LoggingInterceptor.addHttpInfo(request, this.responseLog);
+    LoggingInterceptor.addTracingHeaders(request, this.responseLog);
   }
 
   private static addHttpInfo(request: any, jsonLog: any) {
