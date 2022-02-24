@@ -6,7 +6,7 @@
 <p align="center">
     <img src="https://img.shields.io/static/v1.svg?style=flat&label=Node&message=v14.15.4&labelColor=339933&color=757575&logoColor=FFFFFF&logo=Node.js" alt="Node.js"/>
     <img src="https://img.shields.io/static/v1.svg?style=flat&label=Npm&message=v6.14.10&labelColor=CB3837&logoColor=FFFFFF&color=757575&logo=npm" alt="Npm"/>
-    <img src="https://img.shields.io/static/v1.svg?style=flat&label=NestJs&message=v8.2.0&labelColor=E0234E&logoColor=FFFFFF&color=757575&logo=Nestjs" alt="NestJs"/>
+    <img src="https://img.shields.io/static/v1.svg?style=flat&label=NestJs&message=v8.2.6&labelColor=E0234E&logoColor=FFFFFF&color=757575&logo=Nestjs" alt="NestJs"/>
     <img alt="GitHub license" src="https://img.shields.io/github/license/tresdoce/nestjs-logger?style=flat"><br/>
     <img alt="GitHub Workflow Status" src="https://github.com/tresdoce/nestjs-logger/actions/workflows/master.yml/badge.svg?branch=master">
     <img alt="Codecov" src="https://img.shields.io/codecov/c/github/tresdoce/nestjs-logger?logoColor=FFFFFF&logo=Codecov&labelColor=#F01F7A">
@@ -22,6 +22,9 @@ cualquier proyecto que utilice una configuración centralizada, siguiendo la mis
 
 - [📝 Requerimientos básicos](#basic-requirements)
 - [🛠️ Instalar dependencia](#install-dependencie)
+- [⚙️ Configuración](#configurations)
+- [👨‍💻️ Uso](#uso)
+- [🖥 Logs](#logs)
 - [📤 Commits](#commits)
 - [📄 Changelog](./CHANGELOG.md)
 - [📜 License MIT](license.md)
@@ -43,6 +46,159 @@ cualquier proyecto que utilice una configuración centralizada, siguiendo la mis
 
 ```
 npm install @tresdoce/nestjs-logger
+```
+
+<a name="configurations"></a>
+
+## ⚙️ Configuración
+
+Para utilizar este módulo, es necesario instanciarlo en la creación de la `app` con su global interceptor y también en el módulo principal.
+
+```typescript
+// ./src/main.ts
+import { LoggingInterceptor, LoggingService, LOGGIN_SERVICE } from '@tresdoce/nestjs-logger';
+
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule, {
+    logger: new LoggingService({isProd: process.env.NODE_ENV === "production", level: "info"}),
+  });
+  ...
+  app.useGlobalInterceptors(new LoggingInterceptor(app.get<LoggingService>(LOGGIN_SERVICE)));
+  ...
+}
+```
+
+```typescript
+// ./src/app.module.ts
+import { LoggingModule } from '@tresdoce/nestjs-logger';
+...
+
+@Module({
+  ...
+  imports: [
+    ...
+    LoggingModule.register(),
+    ...
+  ],
+  ...
+})
+```
+
+<a name="uso"></a>
+
+## 👨‍💻️ Uso
+
+Para poder hacer uso de algún metódo del servicio que se exporta mediante este módulo, debes inyectar el token **LOGGING_SERVICE** en el constructor del servicio donde vas a utilizarlo, tipandolo como **LoggingService**.
+
+Logs disponibles:
+`log`
+`error`
+`warn`
+`debug`
+`verbose`
+
+```typescript
+// ./src/app.service.ts
+import { Inject, Injectable } from '@nestjs/common';
+import { LoggingService, LOGGIN_SERVICE } from '@tresdoce/nestjs-logger';
+...
+@Injectable()
+export class AppService {
+  constructor(
+    @Inject(LOGGIN_SERVICE) private logger: LoggingService,
+  ) {}
+
+  getHello(): string {
+    this.logger.log("Log de prueba", "ContextoElastic");
+  }
+}
+```
+
+<a name="logs"></a>
+
+## 🖥 Logs
+
+Los diferentes formatos de logging según el metódo que estés invocando.
+
+- Tipo log
+
+```bash
+[1641844177933] INFO (24552 on VDINAME):
+    context: "This is an info context"
+    msg: {
+      "logger_name": "@tresdoce/nestjs-logger",
+      "@timestamp": 1641844177933,
+      "log_level": "INFO",
+      "build_version": "1.0.0",
+      "build_parent_version": "0.0.1",
+      "log_type": "DEFAULT",
+      "message": "This is an info log"
+    }
+```
+
+- Tipo error
+
+```bash
+[1641844177936] ERROR (24552 on VDINAME):
+    context: "This is an error context"
+    msg: {
+      "logger_name": "@tresdoce/nestjs-logger",
+      "@timestamp": 1641844177936,
+      "log_level": "ERROR",
+      "build_version": "1.0.0",
+      "build_parent_version": "0.0.1",
+      "log_type": "DEFAULT",
+      "message": "This is an error log",
+      "stack_trace": "This is an error log"
+    }
+```
+
+- Tipo warn
+
+```bash
+[1641844177939] WARN (24552 on VDINAME):
+    context: "This is a warn context"
+    msg: {
+      "logger_name": "@tresdoce/nestjs-logger",
+      "@timestamp": 1641844177939,
+      "log_level": "WARN",
+      "build_version": "1.0.0",
+      "build_parent_version": "0.0.1",
+      "log_type": "DEFAULT",
+      "message": "This is a warn log"
+    }
+```
+
+- Tipo debug
+
+```bash
+[1641844177943] DEBUG (24552 on VDINAME):
+    context: "This is a debug context"
+    msg: {
+      "logger_name": "@tresdoce/nestjs-logger",
+      "@timestamp": 1641844177943,
+      "log_level": "DEBUG",
+      "build_version": "1.0.0",
+      "build_parent_version": "0.0.1",
+      "log_type": "DEFAULT",
+      "message": "This is a debug log"
+    }
+```
+
+- Tipo verbose
+
+```bash
+[1641844177946] TRACE (24552 on VDINAME):
+    context: "This is a verbose context"
+    msg: {
+      "logger_name": "@tresdoce/nestjs-logger",
+      "@timestamp": 1641844177946,
+      "log_level": "TRACE",
+      "build_version": "1.0.0",
+      "build_parent_version": "0.0.1",
+      "log_type": "DEFAULT",
+      "message": "This is a verbose log"
+    }
 ```
 
 <a name="commits"></a>
