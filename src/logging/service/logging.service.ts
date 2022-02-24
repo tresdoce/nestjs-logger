@@ -3,13 +3,13 @@ import * as path from 'path';
 import * as fs from 'fs';
 import pino from 'pino';
 const pinoElasticSearch = require('pino-elasticsearch');
-import { ElasitcSearchConfig, LoggingModuleLevel, LogType } from '../types';
+import { ElasticSearchConfig, LoggingModuleLevel, LogType } from '../types';
 
 @Injectable()
 export class LoggingService implements LoggerService {
   private logger: pino.Logger;
   private readonly streamToElastic: any;
-  constructor(isProd: boolean, level: LoggingModuleLevel, elasticConfig?: ElasitcSearchConfig) {
+  constructor(isProd: boolean, level: LoggingModuleLevel, elasticConfig?: ElasticSearchConfig) {
     if (isProd) {
       if (elasticConfig) {
         this.streamToElastic = pinoElasticSearch(elasticConfig);
