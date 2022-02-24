@@ -62,9 +62,8 @@ export class LoggingInterceptor implements NestInterceptor {
     requestLog['http_request_headers'] = request.headers;
     requestLog['http_request_headers_stringify'] = JSON.stringify(request.headers);
     requestLog['http_duration'] = Date.now() - requestDuration;
-    this.addHttpInfo(request, requestLog);
-    this.addTracingHeaders(request, requestLog);
-    return requestLog;
+    LoggingInterceptor.addHttpInfo(request, requestLog);
+    LoggingInterceptor.addTracingHeaders(request, requestLog);
   }
 
   private addResponseLogs(
@@ -88,12 +87,11 @@ export class LoggingInterceptor implements NestInterceptor {
     responseLog['http_response_headers'] = response.getHeaders();
     responseLog['http_response_headers_stringify'] = JSON.stringify(response.getHeaders());
     responseLog['http_duration'] = Date.now() - requestDuration;
-    this.addHttpInfo(request, responseLog);
-    this.addTracingHeaders(request, responseLog);
-    return responseLog;
+    LoggingInterceptor.addHttpInfo(request, responseLog);
+    LoggingInterceptor.addTracingHeaders(request, responseLog);
   }
 
-  private addHttpInfo(request: any, jsonLog: any) {
+  private static addHttpInfo(request: any, jsonLog: any) {
     jsonLog['http_request_address'] = request.protocol + '://' + request.get('host') + request.path;
     jsonLog['http_request_query_string'] = request.query;
     jsonLog['http_request_method'] = request.method;
@@ -101,7 +99,7 @@ export class LoggingInterceptor implements NestInterceptor {
     jsonLog['http_request_remote_address'] = request.ip;
   }
 
-  private addTracingHeaders(request: any, jsonLog: any) {
+  private static addTracingHeaders(request: any, jsonLog: any) {
     const tracingHeaderJaeger: string = request.headers['uber-trace-id'];
     const jaegerIds = tracingHeaderJaeger ? tracingHeaderJaeger.split(':', 3) : ['-', '-', '-'];
     jsonLog['trace_id'] = jaegerIds[0];

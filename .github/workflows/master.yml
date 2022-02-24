@@ -46,12 +46,6 @@ jobs:
         run: npm run test
         env:
           NODE_ENV: 'test'
-          MONGO_CONNECTION: ${{ secrets.MONGO_CONNECTION }}
-          MONGO_USER: ${{ secrets.MONGO_USER }}
-          MONGO_PASSWORD: ${{ secrets.MONGO_PASSWORD }}
-          MONGO_HOST: ${{ secrets.MONGO_HOST }}
-          #MONGO_PORT: ${{ secrets.MONGO_PORT }}
-          MONGO_DB_NAME: ${{ secrets.MONGO_DB_NAME }}
 
       - name: "📊 Upload coverage report to Codecov"
         uses: codecov/codecov-action@v1

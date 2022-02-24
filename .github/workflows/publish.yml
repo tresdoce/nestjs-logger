@@ -1,12 +1,17 @@
-name: "Publish pkg to NPM"
+name: "Publish PKG to NPM"
 
 on:
   workflow_dispatch:
     inputs:
-      newVersion:
-        description: "Version to publish: v[MAJOR].[MINOR].[PATCH]"
+      release:
+        type: choice
+        description: "Version to publish: v[MAJOR].[MINOR].[PATCH]-[PRE-RELEASE].X"
         required: true
-        default: '0.0.0'
+        options:
+          - pre-release
+          - patch
+          - minor
+          - major
 
 env:
   NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
@@ -53,40 +58,40 @@ jobs:
         run: npm run test
         env:
           NODE_ENV: 'test'
-          MONGO_CONNECTION: ${{ secrets.MONGO_CONNECTION }}
-          MONGO_USER: ${{ secrets.MONGO_USER }}
-          MONGO_PASSWORD: ${{ secrets.MONGO_PASSWORD }}
-          MONGO_HOST: ${{ secrets.MONGO_HOST }}
-          #MONGO_PORT: ${{ secrets.MONGO_PORT }}
-          MONGO_DB_NAME: ${{ secrets.MONGO_DB_NAME }}
 
-      - name: "🎉 Publish NPM PKG: v${{github.event.inputs.newVersion}}"
+      - name: "🎉 Publish NPM PKG as ${{ github.event.inputs.release }} version"
         run: |
           git config --global user.name "GitHub CD bot"
           git config --global user.email "${GITHUB_EMAIL}"
-          npm run release -- --release-as ${{github.event.inputs.newVersion}}
+          if ${{github.event.inputs.release == 'pre-release'}}; then
+            npm run release -- --prerelease alpha
+          else
+            npm run release -- --release-as ${{github.event.inputs.release}}
+          fi
           npm run build
           cd ./pkg
           npm config set '//registry.npmjs.org/:_authToken' "${NODE_AUTH_TOKEN}"
           npm publish --access public
           cd ..
           git push --follow-tags origin master
+          echo "LATEST_TAG=$(git describe --abbrev=0 --tags)" >> $GITHUB_ENV
+
       - name: "📄 Create Changelog"
         uses: Bullrich/generate-release-changelog@master
         id: Changelog
         env:
           REPO: ${{ github.repository }}
 
-      - name: "🚀 Publish Release: v${{github.event.inputs.newVersion}}"
+      - name: "🚀 Publish Release: ${{env.LATEST_TAG}}"
         uses: actions/create-release@v1
         with:
-          tag_name: "v${{github.event.inputs.newVersion}}"
-          release_name: "v${{github.event.inputs.newVersion}}"
+          tag_name: "${{env.LATEST_TAG}}"
+          release_name: "${{env.LATEST_TAG}}"
           body: |
             ${{ steps.Changelog.outputs.changelog }}
-
+            
             ---
-
+            
             > 💬 All notable changes to this project will be documented in [Changelog](${{ github.event.repository.html_url }}/blob/master/CHANGELOG.md) file.
           draft: false
-          prerelease: false
+          prerelease: ${{ github.event.inputs.release == 'pre-release' }}

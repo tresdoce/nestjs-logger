@@ -5,7 +5,7 @@ import * as _ from 'lodash';
 
 import { LoggingService } from './service/logging.service';
 import { LOGGING_SERVICE } from './constants/logging.constants';
-import { ElasitcSearchConfig, LoggingModuleLevel } from './types';
+import { ElasticSearchConfig, LoggingModuleLevel } from './types';
 
 @Global()
 @Module({})
@@ -20,8 +20,8 @@ export class LoggingModule {
           provide: LOGGING_SERVICE,
           useFactory: async (configService: ConfigService) => {
             const config = configService.get('config');
-            const isProd: boolean = Boolean(config['server']['isProd']);
-            const elasticConfig: ElasitcSearchConfig =
+            const isProd = Boolean(config['server']['isProd']);
+            const elasticConfig: ElasticSearchConfig =
               _.isUndefined(config['elasticConfig']) || _.isEmpty(config['elasticConfig'])
                 ? null
                 : config['elasticConfig'];
