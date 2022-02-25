@@ -9,10 +9,12 @@ import { ElasticSearchConfig, LoggingModuleLevel, LogType } from '../types';
 export class LoggingService implements LoggerService {
   private logger: pino.Logger;
   private readonly streamToElastic: any;
-  private requestLog: any;
-  private responseLog: any;
 
-  constructor(isProd: boolean, level: LoggingModuleLevel, elasticConfig?: ElasticSearchConfig) {
+  constructor(
+    isProd = true,
+    level: LoggingModuleLevel = 'info',
+    elasticConfig?: ElasticSearchConfig,
+  ) {
     if (isProd) {
       if (elasticConfig) {
         this.streamToElastic = pinoElasticSearch(elasticConfig);
@@ -99,8 +101,8 @@ export class LoggingService implements LoggerService {
     context: ExecutionContext,
     timeRequest: number,
     requestDuration: number,
-  ): void {
-    let requestLog = this.getGenericLog('info', 'RESPONSE', timeRequest);
+  ) {
+    const requestLog = this.getGenericLog('info', 'RESPONSE', timeRequest);
     requestLog['thread_name'] = '-';
     requestLog['message'] = 'Request executed';
     requestLog['http_request_execution_context_class'] = context.getClass().name;
@@ -123,8 +125,8 @@ export class LoggingService implements LoggerService {
     context: ExecutionContext,
     timeRequest: number,
     requestDuration: number,
-  ): void {
-    let responseLog = this.getGenericLog('info', 'RESPONSE', timeRequest);
+  ) {
+    const responseLog = this.getGenericLog('info', 'RESPONSE', timeRequest);
     responseLog['thread_name'] = '-';
     responseLog['message'] = 'Response generated';
     responseLog['http_response_execution_context_class'] = context.getClass().name;
