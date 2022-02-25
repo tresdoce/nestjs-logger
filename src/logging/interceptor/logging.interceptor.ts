@@ -1,10 +1,4 @@
-import {
-  CallHandler,
-  ExecutionContext,
-  HttpStatus,
-  Injectable,
-  NestInterceptor,
-} from '@nestjs/common';
+import { CallHandler, ExecutionContext, Injectable, NestInterceptor } from '@nestjs/common';
 
 import { Observable, tap } from 'rxjs';
 import * as _ from 'lodash';

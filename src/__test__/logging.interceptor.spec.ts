@@ -133,7 +133,7 @@ describe('LoggingInterceptor', () => {
     expect(logSpy).toBeCalledTimes(1);*/
     //const responseInterceptor = await interceptor.intercept(executionContext, callHandler);
     const url: string = `/test-app/ok`;
-
+    //loggingService.info('this is a message log', "this is a context");
     const responseReq = await request(app.getHttpServer()).get(url);
     expect(responseReq.status).toEqual(HttpStatus.OK);
     //console.log(responseInterceptor)
@@ -143,6 +143,7 @@ describe('LoggingInterceptor', () => {
     const url: string = `/test-app/badRequest`;
 
     const responseReq = await request(app.getHttpServer()).get(url);
+    loggingService.error(responseReq, 'error stack example');
     expect(responseReq.status).toEqual(HttpStatus.BAD_REQUEST);
   });
 });

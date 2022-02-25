@@ -1,0 +1,12 @@
+{
+   "level":"%level",
+   "application_name":"${application_name:-}",
+   "traceId":"%X{traceId:-}",
+   "spanId":"%X{spanId:-}",
+   "parent":"%X{parentId:-}",
+   "exportable":"%X{sampled:-}",
+   "pid":"${PID:-}",
+   "thread":"%thread",
+   "class":"%logger{40}",
+   "message":"%message"
+}
