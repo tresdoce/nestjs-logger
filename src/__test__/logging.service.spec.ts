@@ -18,6 +18,15 @@ const mockedManifest = {
   version: '1.0.0',
 };
 
+const executionContext: any = {
+  switchToHttp: jest.fn().mockReturnThis(),
+  getRequest: jest.fn().mockReturnThis(),
+  getResponse: jest.fn().mockReturnThis(),
+  getClass: jest.fn().mockReturnThis(),
+  getHandler: jest.fn().mockReturnThis(),
+  getType: jest.fn().mockReturnThis(),
+};
+
 describe('LoggingService development', () => {
   let loggingService: LoggingService;
   let app: INestApplication;

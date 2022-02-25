@@ -1,4 +1,4 @@
-import { Injectable, LoggerService } from '@nestjs/common';
+import { ExecutionContext, HttpStatus, Injectable, LoggerService } from '@nestjs/common';
 import * as path from 'path';
 import * as fs from 'fs';
 import pino from 'pino';
@@ -9,6 +9,9 @@ import { ElasticSearchConfig, LoggingModuleLevel, LogType } from '../types';
 export class LoggingService implements LoggerService {
   private logger: pino.Logger;
   private readonly streamToElastic: any;
+  private requestLog: any;
+  private responseLog: any;
+
   constructor(isProd: boolean, level: LoggingModuleLevel, elasticConfig?: ElasticSearchConfig) {
     if (isProd) {
       if (elasticConfig) {
@@ -89,5 +92,72 @@ export class LoggingService implements LoggerService {
       build_parent_version: packageInfo.version,
       log_type: logType,
     };
+  }
+
+  /**/
+
+  public addRequestLogs(
+    request: any,
+    context: ExecutionContext,
+    timeRequest: number,
+    requestDuration: number,
+  ): void {
+    this.requestLog = this.getGenericLog('info', 'RESPONSE', timeRequest);
+    this.requestLog['thread_name'] = '-';
+    this.requestLog['message'] = 'Request executed';
+    this.requestLog['http_request_execution_context_class'] = context.getClass().name;
+    this.requestLog['http_request_execution_context_handler'] = context.getHandler().name;
+    this.requestLog['http_request_execution_context_type'] = context.getType();
+    this.requestLog['http_request_body'] = request.body;
+    this.requestLog['http_request_body_stringify'] = JSON.stringify(request.body);
+    this.requestLog['http_request_headers'] = request.headers;
+    this.requestLog['http_request_headers_stringify'] = JSON.stringify(request.headers);
+    this.requestLog['http_duration'] = Date.now() - requestDuration;
+
+    LoggingService.addHttpInfo(request, this.requestLog);
+    LoggingService.addTracingHeaders(request, this.requestLog);
+  }
+
+  public addResponseLogs(
+    request: any,
+    response: any,
+    body: any,
+    context: ExecutionContext,
+    timeRequest: number,
+    requestDuration: number,
+  ): void {
+    this.responseLog = this.getGenericLog('info', 'RESPONSE', timeRequest);
+    this.responseLog['thread_name'] = '-';
+    this.responseLog['message'] = 'Response generated';
+    this.responseLog['http_response_execution_context_class'] = context.getClass().name;
+    this.responseLog['http_response_execution_context_handler'] = context.getHandler().name;
+    this.responseLog['http_response_execution_context_type'] = context.getType();
+    this.responseLog['http_response_status_code'] = response.statusCode;
+    this.responseLog['http_response_status_phrase'] = HttpStatus[response.statusCode];
+    this.responseLog['http_response_body'] = body;
+    this.responseLog['http_response_body_stringify'] = JSON.stringify(body);
+    this.responseLog['http_response_headers'] = response.getHeaders();
+    this.responseLog['http_response_headers_stringify'] = JSON.stringify(response.getHeaders());
+    this.responseLog['http_duration'] = Date.now() - requestDuration;
+    LoggingService.addHttpInfo(request, this.responseLog);
+    LoggingService.addTracingHeaders(request, this.responseLog);
+  }
+
+  private static addHttpInfo(request: any, jsonLog: any) {
+    jsonLog['http_request_address'] = request.protocol + '://' + request.get('host') + request.path;
+    jsonLog['http_request_query_string'] = request.query;
+    jsonLog['http_request_method'] = request.method;
+    jsonLog['http_request_path'] = request.path;
+    jsonLog['http_request_remote_address'] = request.ip;
+  }
+
+  private static addTracingHeaders(request: any, jsonLog: any) {
+    if (request.headers && request.headers['uber-trace-id']) {
+      const tracingHeaderJaeger: string = request.headers['uber-trace-id'];
+      const jaegerIds = tracingHeaderJaeger ? tracingHeaderJaeger.split(':', 3) : ['-', '-', '-'];
+      jsonLog['trace_id'] = jaegerIds[0];
+      jsonLog['span_id'] = jaegerIds[1];
+      jsonLog['span_parent_id'] = jaegerIds[2];
+    }
   }
 }
