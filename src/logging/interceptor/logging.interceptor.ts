@@ -40,6 +40,7 @@ export class LoggingInterceptor implements NestInterceptor {
             timeRequest,
             requestDuration,
           );
+
           this.loggingService.log(this.requestLog);
           this.loggingService.log(this.responseLog);
         }
@@ -64,6 +65,7 @@ export class LoggingInterceptor implements NestInterceptor {
     this.requestLog['http_request_headers'] = request.headers;
     this.requestLog['http_request_headers_stringify'] = JSON.stringify(request.headers);
     this.requestLog['http_duration'] = Date.now() - requestDuration;
+
     LoggingInterceptor.addHttpInfo(request, this.requestLog);
     LoggingInterceptor.addTracingHeaders(request, this.requestLog);
   }

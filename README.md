@@ -56,14 +56,14 @@ Para utilizar este módulo, es necesario instanciarlo en la creación de la `app
 
 ```typescript
 // ./src/main.ts
-import { LoggingInterceptor, LoggingService, LOGGIN_SERVICE } from '@tresdoce/nestjs-logger';
+import { LoggingInterceptor, LoggingService, LOGGING_SERVICE } from '@tresdoce/nestjs-logger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
     logger: new LoggingService({isProd: process.env.NODE_ENV === "production", level: "info"}),
   });
   ...
-  app.useGlobalInterceptors(new LoggingInterceptor(app.get<LoggingService>(LOGGIN_SERVICE)));
+  app.useGlobalInterceptors(new LoggingInterceptor(app.get<LoggingService>(LOGGING_SERVICE)));
   ...
 }
 ```
@@ -98,14 +98,14 @@ Logs disponibles:
 `verbose`
 
 ```typescript
-// ./src/app.service.ts
+// ./src/app.controller.ts
 import { Inject, Injectable } from '@nestjs/common';
-import { LoggingService, LOGGIN_SERVICE } from '@tresdoce/nestjs-logger';
+import { LoggingService, LOGGING_SERVICE } from '@tresdoce/nestjs-logger';
 ...
 @Injectable()
 export class AppService {
   constructor(
-    @Inject(LOGGIN_SERVICE) private logger: LoggingService,
+    @Inject(LOGGING_SERVICE) private logger: LoggingService,
   ) {}
 
   getHello(): string {
