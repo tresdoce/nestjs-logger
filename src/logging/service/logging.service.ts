@@ -1,6 +1,7 @@
 import { ExecutionContext, HttpStatus, Injectable, LoggerService } from '@nestjs/common';
 import * as path from 'path';
 import * as fs from 'fs';
+import * as _ from 'lodash';
 import pino from 'pino';
 const pinoElasticSearch = require('pino-elasticsearch');
 import { ElasticSearchConfig, LoggingModuleLevel, LogType } from '../types';
@@ -12,7 +13,7 @@ export class LoggingService implements LoggerService {
 
   constructor(isProd: boolean, level: LoggingModuleLevel, elasticConfig?: ElasticSearchConfig) {
     if (isProd) {
-      if (elasticConfig) {
+      if (!_.isUndefined(elasticConfig) && !_.isEmpty(elasticConfig)) {
         this.streamToElastic = pinoElasticSearch(elasticConfig);
         this.logger = pino({ level }, this.streamToElastic);
       } else {
