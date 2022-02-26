@@ -17,7 +17,7 @@ const request: any = {
 };
 const requestTrace = {
   headers: {
-    'uber-trace-id': 'traceid:sapnid:spanparentid',
+    'uber-trace-id': 'traceId:spanId:spanParentId',
   },
   get: jest.fn().mockReturnThis(),
 };

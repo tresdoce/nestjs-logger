@@ -32,7 +32,7 @@ export class LoggingInterceptor implements NestInterceptor {
     request: Request,
     response: Response,
     responseBody: any,
-  ) {
+  ): void {
     if (_.isUndefined(excludePaths.find((path) => _.startsWith(request.path, path)))) {
       const requestDuration = Date.now() - timeRequest;
       const requestLog = this.loggingService.addRequestLogs(

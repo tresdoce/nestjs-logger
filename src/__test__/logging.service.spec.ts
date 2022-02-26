@@ -59,6 +59,11 @@ describe('LoggingService development', () => {
     expect(loggingService).toBeInstanceOf(LoggingService);
   });
 
+  it('should be return logger info', () => {
+    expect(loggingService.getLoggerInfo()).toEqual(expect.any(Object));
+    expect(loggingService.getLoggerInfo().levelVal).toEqual(10);
+  });
+
   it('Should return a GenericLog object', () => {
     loggingService.readFile = jest.fn().mockImplementation(() => mockedManifest);
     expect(loggingService.getGenericLog('info')).toHaveProperty('log_level');
@@ -192,6 +197,11 @@ describe('LoggingService prod', () => {
 
   it('should be defined', () => {
     expect(loggingService).toBeInstanceOf(LoggingService);
+  });
+
+  it('should be return logger info', () => {
+    expect(loggingService.getLoggerInfo()).toEqual(expect.any(Object));
+    expect(loggingService.getLoggerInfo().levelVal).toEqual(30);
   });
 });
 

@@ -7,14 +7,10 @@ import { ElasticSearchConfig, LoggingModuleLevel, LogType } from '../types';
 
 @Injectable()
 export class LoggingService implements LoggerService {
-  private logger: pino.Logger;
+  private readonly logger: pino.Logger;
   private readonly streamToElastic: any;
 
-  constructor(
-    isProd: boolean,
-    level: LoggingModuleLevel = 'info',
-    elasticConfig?: ElasticSearchConfig,
-  ) {
+  constructor(isProd: boolean, level: LoggingModuleLevel, elasticConfig?: ElasticSearchConfig) {
     if (isProd) {
       if (elasticConfig) {
         this.streamToElastic = pinoElasticSearch(elasticConfig);
@@ -33,6 +29,10 @@ export class LoggingService implements LoggerService {
         level,
       });
     }
+  }
+
+  public getLoggerInfo() {
+    return this.logger;
   }
 
   public readFile(pathSegment: string, filename: string) {
@@ -109,9 +109,9 @@ export class LoggingService implements LoggerService {
     requestLog['http_request_execution_context_handler'] = context.getHandler().name;
     requestLog['http_request_execution_context_type'] = context.getType();
     requestLog['http_request_body'] = request.body;
-    requestLog['http_request_body_stringify'] = request.body;
+    requestLog['http_request_body_stringify'] = JSON.stringify(request.body);
     requestLog['http_request_headers'] = request.headers;
-    requestLog['http_request_headers_stringify'] = request.headers;
+    requestLog['http_request_headers_stringify'] = JSON.stringify(request.headers);
     requestLog['http_duration'] = Date.now() - requestDuration;
     LoggingService.addHttpInfo(request, requestLog);
     LoggingService.addTracingHeaders(request, requestLog);
@@ -135,9 +135,9 @@ export class LoggingService implements LoggerService {
     responseLog['http_response_status_code'] = response.statusCode;
     responseLog['http_response_status_phrase'] = HttpStatus[response.statusCode];
     responseLog['http_response_body'] = body;
-    responseLog['http_response_body_stringify'] = body;
+    responseLog['http_response_body_stringify'] = JSON.stringify(body);
     responseLog['http_response_headers'] = response.getHeaders();
-    responseLog['http_response_headers_stringify'] = response.getHeaders();
+    responseLog['http_response_headers_stringify'] = JSON.stringify(response.getHeaders());
     responseLog['http_duration'] = Date.now() - requestDuration;
     LoggingService.addHttpInfo(request, responseLog);
     LoggingService.addTracingHeaders(request, responseLog);
