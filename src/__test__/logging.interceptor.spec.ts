@@ -99,7 +99,6 @@ describe('LoggingInterceptor', () => {
             timeRequest,
             requestDuration,
           );
-          tap: jest.fn(() => {});
         }),
       })),
     };
