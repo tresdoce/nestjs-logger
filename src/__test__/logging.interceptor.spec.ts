@@ -4,7 +4,6 @@ import { INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { ConfigModule } from '@nestjs/config';
 import { LoggingModule } from '../logging/logging.module';
-// import { LOGGING_SERVICE } from '../logging/constants/logging.constants';
 
 const mockedManifest = {
   name: 'nestjs-logging',

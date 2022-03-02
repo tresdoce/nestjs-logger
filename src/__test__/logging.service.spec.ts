@@ -1,9 +1,8 @@
-import { HttpStatus, INestApplication } from '@nestjs/common';
+import { INestApplication } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
 import { LoggingModule } from '../logging/logging.module';
 import { LoggingService } from '../logging/service/logging.service';
-import { LoggingInterceptor } from '../logging/interceptor/logging.interceptor';
 
 const mockedDevConfig = {
   config: {
@@ -199,46 +198,5 @@ describe('LoggingService prod', () => {
   it('should be return logger info', () => {
     expect(loggingService.getLoggerInfo()).toEqual(expect.any(Object));
     expect(loggingService.getLoggerInfo().levelVal).toEqual(30);
-  });
-});
-
-const mockedProdConfigWithElastic = {
-  config: {
-    server: {
-      isProd: true,
-    },
-    elasticConfig: {
-      index: 'nestjs-test-module',
-      node: 'http://localhost:9200',
-      Connection: jest.fn().mockReturnThis(),
-      auth: {
-        username: '',
-        password: '',
-      },
-    },
-  },
-};
-
-describe('LoggingService prod with elastic config', () => {
-  let loggingService: LoggingService;
-  let app: INestApplication;
-
-  beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      imports: [
-        ConfigModule.forRoot({
-          isGlobal: true,
-          load: [jest.fn().mockImplementation(() => mockedProdConfigWithElastic)],
-        }),
-        LoggingModule.register(),
-      ],
-    }).compile();
-    app = module.createNestApplication();
-    await app.init();
-    loggingService = module.get<LoggingService>(LoggingService);
-  });
-
-  it('should be defined', () => {
-    expect(loggingService).toBeInstanceOf(LoggingService);
   });
 });

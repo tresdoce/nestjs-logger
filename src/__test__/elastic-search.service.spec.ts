@@ -2,40 +2,7 @@ import { INestApplication } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
 import { LoggingModule } from '../logging/logging.module';
-const mockedConfig = {
-  config: {
-    server: {
-      isProd: false,
-    },
-  },
-};
-
-describe('LoggingModule', () => {
-  let app: INestApplication;
-
-  beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      imports: [
-        ConfigModule.forRoot({
-          isGlobal: true,
-          load: [jest.fn().mockImplementation(() => mockedConfig)],
-        }),
-        LoggingModule.register(),
-      ],
-    }).compile();
-
-    app = module.createNestApplication();
-    await app.init;
-  });
-
-  afterEach(async () => {
-    await app.close();
-  });
-
-  it('should be defined', async () => {
-    await expect(app).toBeDefined();
-  });
-});
+import { ElasticSearchService } from '../logging/service/elastic-search.service';
 
 const mockedConfigWithElastic = {
   config: {
@@ -54,7 +21,8 @@ const mockedConfigWithElastic = {
   },
 };
 
-describe('LoggingModuleWithElastic', () => {
+describe('ElasticSearchService', () => {
+  let service: ElasticSearchService;
   let app: INestApplication;
 
   beforeEach(async () => {
@@ -64,19 +32,16 @@ describe('LoggingModuleWithElastic', () => {
           isGlobal: true,
           load: [jest.fn().mockImplementation(() => mockedConfigWithElastic)],
         }),
-        LoggingModule.registerWithElastic('info'),
+        LoggingModule.registerWithElastic(),
       ],
     }).compile();
 
     app = module.createNestApplication();
     await app.init;
+    service = module.get<ElasticSearchService>(ElasticSearchService);
   });
 
-  afterEach(async () => {
-    await app.close();
-  });
-
-  it('should be defined', async () => {
-    await expect(app).toBeDefined();
+  it('should be defined', () => {
+    expect(service).toBeDefined();
   });
 });
