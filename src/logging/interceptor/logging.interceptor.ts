@@ -1,11 +1,11 @@
 import { CallHandler, ExecutionContext, Injectable, NestInterceptor } from '@nestjs/common';
 import { HttpArgumentsHost } from '@nestjs/common/interfaces';
 import { Observable, tap } from 'rxjs';
+import { Request, Response } from 'express';
 import * as _ from 'lodash';
 
 import { excludePaths } from '../constants/logging.constants';
 import { LoggingService } from '../service/logging.service';
-import { Request, Response } from 'express';
 
 @Injectable()
 export class LoggingInterceptor implements NestInterceptor {
