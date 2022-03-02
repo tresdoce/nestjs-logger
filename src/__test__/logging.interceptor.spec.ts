@@ -4,7 +4,7 @@ import { INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { ConfigModule } from '@nestjs/config';
 import { LoggingModule } from '../logging/logging.module';
-import { LOGGING_SERVICE } from '../logging/constants/logging.constants';
+// import { LOGGING_SERVICE } from '../logging/constants/logging.constants';
 
 const mockedManifest = {
   name: 'nestjs-logging',
@@ -61,7 +61,7 @@ describe('LoggingInterceptor', () => {
     }).compile();
     app = module.createNestApplication();
     await app.init();
-    loggingService = module.get<LoggingService>(LOGGING_SERVICE);
+    loggingService = module.get<LoggingService>(LoggingService);
   });
 
   it('should return an LoggingInterceptor toBeDefined', () => {

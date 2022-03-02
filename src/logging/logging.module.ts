@@ -1,10 +1,10 @@
-import { DynamicModule, Global, Module } from '@nestjs/common';
+import { DynamicModule, Global, Module, Provider } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 
 import * as _ from 'lodash';
 
 import { LoggingService } from './service/logging.service';
-import { LOGGING_SERVICE } from './constants/logging.constants';
+import { LOGGING_MODULE_OPTIONS } from './constants/logging.constants';
 import { ElasticSearchConfig, LoggingModuleLevel } from './types';
 
 @Global()
@@ -17,20 +17,19 @@ export class LoggingModule {
       imports: [ConfigModule],
       providers: [
         {
-          provide: LOGGING_SERVICE,
+          provide: LOGGING_MODULE_OPTIONS,
           useFactory: async (configService: ConfigService) => {
             const config = configService.get('config');
-            const isProd = Boolean(config['server']['isProd']);
-            const elasticConfig: ElasticSearchConfig =
-              _.isUndefined(config['elasticConfig']) || _.isEmpty(config['elasticConfig'])
-                ? null
-                : config['elasticConfig'];
-            return new LoggingService(isProd, level, elasticConfig);
+            return {
+              config,
+              level,
+            };
           },
           inject: [ConfigService],
         },
+        LoggingService,
       ],
-      exports: [LOGGING_SERVICE],
+      exports: [LOGGING_MODULE_OPTIONS, LoggingService],
     };
   }
 }

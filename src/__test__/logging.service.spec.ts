@@ -1,9 +1,6 @@
 import { HttpStatus, INestApplication } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
-import request from 'supertest';
-
-import { LOGGING_SERVICE } from '../logging/constants/logging.constants';
 import { LoggingModule } from '../logging/logging.module';
 import { LoggingService } from '../logging/service/logging.service';
 import { LoggingInterceptor } from '../logging/interceptor/logging.interceptor';
@@ -46,7 +43,7 @@ describe('LoggingService development', () => {
     }).compile();
     app = module.createNestApplication();
     await app.init();
-    loggingService = module.get<LoggingService>(LOGGING_SERVICE);
+    loggingService = module.get<LoggingService>(LoggingService);
   });
 
   it('should be read package file', () => {
@@ -192,7 +189,7 @@ describe('LoggingService prod', () => {
     }).compile();
     app = module.createNestApplication();
     await app.init();
-    loggingService = module.get<LoggingService>(LOGGING_SERVICE);
+    loggingService = module.get<LoggingService>(LoggingService);
   });
 
   it('should be defined', () => {
@@ -238,8 +235,7 @@ describe('LoggingService prod with elastic config', () => {
     }).compile();
     app = module.createNestApplication();
     await app.init();
-    app.useGlobalInterceptors(new LoggingInterceptor(app.get<LoggingService>(LOGGING_SERVICE)));
-    loggingService = module.get<LoggingService>(LOGGING_SERVICE);
+    loggingService = module.get<LoggingService>(LoggingService);
   });
 
   it('should be defined', () => {
