@@ -53,30 +53,3 @@ const mockedConfigWithElastic = {
     },
   },
 };
-
-describe('LoggingModuleWithElastic', () => {
-  let app: INestApplication;
-
-  beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      imports: [
-        ConfigModule.forRoot({
-          isGlobal: true,
-          load: [jest.fn().mockImplementation(() => mockedConfigWithElastic)],
-        }),
-        LoggingModule.registerWithElastic('info'),
-      ],
-    }).compile();
-
-    app = module.createNestApplication();
-    await app.init;
-  });
-
-  afterEach(async () => {
-    await app.close();
-  });
-
-  it('should be defined', async () => {
-    await expect(app).toBeDefined();
-  });
-});

@@ -13,9 +13,21 @@ export class LoggingService implements LoggerService {
   constructor(
     @Inject(LOGGING_MODULE_OPTIONS) private readonly loggingModuleOptions?: LoggingModuleOptions,
   ) {
-    const { level, isProd } = this.loggingModuleOptions;
+    const {
+      level,
+      config: {
+        server: { isProd },
+        elasticConfig,
+      },
+      config,
+    } = this.loggingModuleOptions;
     if (isProd) {
-      this.logger = pino({ level });
+      if (_.has(config, 'elasticConfig') && !_.isEmpty(elasticConfig)) {
+        this.streamToElastic = pinoElasticSearch(elasticConfig);
+        this.logger = pino({ level }, this.streamToElastic);
+      } else {
+        this.logger = pino({ level });
+      }
     } else {
       this.logger = pino({
         transport: {
@@ -125,11 +137,6 @@ export class LoggingService implements LoggerService {
     requestDuration: number,
   ) {
     const responseLog = this.getGenericLog('info', 'RESPONSE', timeRequest);
-    responseLog['thread_name'] = '-';
-    responseLog['message'] = 'Response generated';
-    responseLog['http_response_execution_context_class'] = context.getClass().name;
-    responseLog['http_response_execution_context_handler'] = context.getHandler().name;
-    responseLog['http_response_execution_context_type'] = context.getType();
     responseLog['http_response_status_code'] = response.statusCode;
     responseLog['http_response_status_phrase'] = HttpStatus[response.statusCode];
     responseLog['http_response_body'] = body;

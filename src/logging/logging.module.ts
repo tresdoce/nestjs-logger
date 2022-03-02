@@ -5,8 +5,7 @@ import * as _ from 'lodash';
 
 import { LoggingService } from './service/logging.service';
 import { LOGGING_MODULE_OPTIONS } from './constants/logging.constants';
-import { LoggingModuleLevel } from './types';
-import { ElasticSearchService } from './service/elastic-search.service';
+import { ElasticSearchConfig, LoggingModuleLevel } from './types';
 
 @Global()
 @Module({})
@@ -20,14 +19,10 @@ export class LoggingModule {
         {
           provide: LOGGING_MODULE_OPTIONS,
           useFactory: async (configService: ConfigService) => {
-            const {
-              server: { isProd },
-              elasticConfig,
-            } = configService.get('config');
+            const config = configService.get('config');
             return {
+              config,
               level,
-              isProd,
-              elasticConfig,
             };
           },
           inject: [ConfigService],
@@ -35,34 +30,6 @@ export class LoggingModule {
         LoggingService,
       ],
       exports: [LOGGING_MODULE_OPTIONS, LoggingService],
-    };
-  }
-
-  static registerWithElastic(level: LoggingModuleLevel = 'info'): DynamicModule {
-    return {
-      global: true,
-      module: LoggingModule,
-      imports: [ConfigModule],
-      providers: [
-        {
-          provide: LOGGING_MODULE_OPTIONS,
-          useFactory: async (configService: ConfigService) => {
-            const {
-              server: { isProd },
-              elasticConfig,
-            } = configService.get('config');
-            return {
-              level,
-              isProd,
-              elasticConfig,
-            };
-          },
-          inject: [ConfigService],
-        },
-        LoggingService,
-        ElasticSearchService,
-      ],
-      exports: [LOGGING_MODULE_OPTIONS, LoggingService, ElasticSearchService],
     };
   }
 }

@@ -1,4 +1,3 @@
-import { ClientOptions } from '@elastic/elasticsearch';
 export type LoggingModuleLevel = 'fatal' | 'error' | 'warn' | 'info' | 'debug' | 'trace' | 'silent';
 export type LogType = 'DEFAULT' | 'REQUEST' | 'RESPONSE' | 'OUTGOING_REQUEST' | 'OUTGOING_RESPONSE';
 export type ElasticSearchConfig = {
@@ -23,7 +22,6 @@ export type ElasticSearchConfig = {
 };
 
 export type LoggingModuleOptions = {
-  level: LoggingModuleLevel;
-  isProd: boolean;
-  elasticConfig: ClientOptions;
+  config;
+  level?: LoggingModuleLevel;
 };
