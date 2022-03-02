@@ -1,17 +1,28 @@
-import { ExecutionContext, HttpStatus, Injectable, LoggerService } from '@nestjs/common';
+import { ExecutionContext, HttpStatus, Inject, Injectable, LoggerService } from '@nestjs/common';
 import * as path from 'path';
 import * as fs from 'fs';
+import * as _ from 'lodash';
 import pino from 'pino';
+import { LoggingModuleLevel, LoggingModuleOptions, LogType } from '../types';
+import { LOGGING_MODULE_OPTIONS } from '../constants/logging.constants';
 const pinoElasticSearch = require('pino-elasticsearch');
-import { ElasticSearchConfig, LoggingModuleLevel, LogType } from '../types';
-
 @Injectable()
 export class LoggingService implements LoggerService {
   private logger: pino.Logger;
   private readonly streamToElastic: any;
-  constructor(isProd: boolean, level: LoggingModuleLevel, elasticConfig?: ElasticSearchConfig) {
+  constructor(
+    @Inject(LOGGING_MODULE_OPTIONS) private readonly loggingModuleOptions?: LoggingModuleOptions,
+  ) {
+    const {
+      level,
+      config: {
+        server: { isProd },
+        elasticConfig,
+      },
+      config,
+    } = this.loggingModuleOptions;
     if (isProd) {
-      if (elasticConfig) {
+      if (_.has(config, 'elasticConfig') && !_.isEmpty(elasticConfig)) {
         this.streamToElastic = pinoElasticSearch(elasticConfig);
         this.logger = pino({ level }, this.streamToElastic);
       } else {

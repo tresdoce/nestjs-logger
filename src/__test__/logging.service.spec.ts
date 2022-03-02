@@ -1,7 +1,6 @@
 import { INestApplication } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
-import { LOGGING_SERVICE } from '../logging/constants/logging.constants';
 import { LoggingModule } from '../logging/logging.module';
 import { LoggingService } from '../logging/service/logging.service';
 
@@ -34,7 +33,7 @@ describe('LoggingService development', () => {
     }).compile();
     app = module.createNestApplication();
     await app.init();
-    loggingService = module.get<LoggingService>(LOGGING_SERVICE);
+    loggingService = module.get<LoggingService>(LoggingService);
   });
 
   it('should be read package file', () => {
@@ -175,7 +174,7 @@ describe('LoggingService prod', () => {
     }).compile();
     app = module.createNestApplication();
     await app.init();
-    loggingService = module.get<LoggingService>(LOGGING_SERVICE);
+    loggingService = module.get<LoggingService>(LoggingService);
   });
 
   it('should be defined', () => {
@@ -216,7 +215,7 @@ describe('LoggingService prod with elastic config', () => {
     }).compile();
     app = module.createNestApplication();
     await app.init();
-    loggingService = module.get<LoggingService>(LOGGING_SERVICE);
+    loggingService = module.get<LoggingService>(LoggingService);
   });
 
   it('should be defined', () => {

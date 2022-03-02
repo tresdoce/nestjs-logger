@@ -20,3 +20,8 @@ export type ElasticSearchConfig = {
   compression?: 'gzip';
   Connection?: any;
 };
+
+export type LoggingModuleOptions = {
+  config;
+  level?: LoggingModuleLevel;
+};

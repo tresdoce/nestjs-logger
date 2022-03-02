@@ -1,2 +1,2 @@
-export const LOGGING_SERVICE = 'LOGGING_SERVICE';
+export const LOGGING_MODULE_OPTIONS = 'LOGGING_MODULE_OPTIONS';
 export const excludePaths = ['/liveness', '/readiness', '/manifest'];
