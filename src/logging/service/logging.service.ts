@@ -18,11 +18,10 @@ export class LoggingService implements LoggerService {
     const {
       server: { isProd },
       elasticConfig,
-      server,
     } = this.loggingModuleOptions.get('config');
 
     if (isProd) {
-      if (_.has(server, 'elasticConfig') && !_.isEmpty(elasticConfig)) {
+      if (elasticConfig && !_.isEmpty(elasticConfig)) {
         this.streamToElastic = pinoElasticSearch(elasticConfig);
         this.logger = pino({ level: this.level }, this.streamToElastic);
       } else {
