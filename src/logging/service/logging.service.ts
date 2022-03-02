@@ -13,21 +13,9 @@ export class LoggingService implements LoggerService {
   constructor(
     @Inject(LOGGING_MODULE_OPTIONS) private readonly loggingModuleOptions?: LoggingModuleOptions,
   ) {
-    const {
-      level,
-      config: {
-        server: { isProd },
-        elasticConfig,
-      },
-      config,
-    } = this.loggingModuleOptions;
+    const { level, isProd } = this.loggingModuleOptions;
     if (isProd) {
-      if (_.has(config, 'elasticConfig') && !_.isEmpty(elasticConfig)) {
-        this.streamToElastic = pinoElasticSearch(elasticConfig);
-        this.logger = pino({ level }, this.streamToElastic);
-      } else {
-        this.logger = pino({ level });
-      }
+      this.logger = pino({ level });
     } else {
       this.logger = pino({
         transport: {
