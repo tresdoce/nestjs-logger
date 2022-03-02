@@ -37,7 +37,7 @@ describe('LoggingModule', () => {
   });
 });
 
-const mockedConfigWithElastic = {
+/*const mockedConfigWithElastic = {
   config: {
     server: {
       isProd: true,
@@ -52,4 +52,4 @@ const mockedConfigWithElastic = {
       },
     },
   },
-};
+};*/

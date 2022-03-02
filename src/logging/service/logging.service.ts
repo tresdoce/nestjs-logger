@@ -1,10 +1,11 @@
 import { ExecutionContext, HttpStatus, Inject, Injectable, LoggerService } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import * as path from 'path';
 import * as fs from 'fs';
 import * as _ from 'lodash';
 import pino from 'pino';
 const pinoElasticSearch = require('pino-elasticsearch');
+const pinoMultiStream = require('pino-multi-stream').multistream;
+//const ecsFormat = require('@elastic/ecs-pino-format')()
 
 import { LEVEL_OPTIONS, LOGGING_OPTIONS } from '../constants/logging.constants';
 import { LoggingModuleLevel, LogType } from '../types';
@@ -15,17 +16,27 @@ export class LoggingService implements LoggerService {
   private readonly streamToElastic: any;
   constructor(
     @Inject(LEVEL_OPTIONS) private readonly level: LoggingModuleLevel,
-    @Inject(LOGGING_OPTIONS) private readonly loggingOptions: ConfigService,
+    @Inject(LOGGING_OPTIONS) private readonly loggingOptions?: any,
   ) {
     const {
       server: { isProd },
       elasticConfig,
-    } = this.loggingOptions.get('config');
+    } = this.loggingOptions;
 
     if (isProd) {
       if (elasticConfig && !_.isEmpty(elasticConfig)) {
-        this.streamToElastic = pinoElasticSearch(elasticConfig);
-        this.logger = pino({ level: this.level }, this.streamToElastic);
+        this.streamToElastic = pinoElasticSearch({
+          index: 'api-',
+          node: 'http://localhost:9200',
+          /*consistency: 'one',
+          'es-version': 7,
+          'flush-bytes': 1000,*/
+          ...elasticConfig,
+        });
+        this.logger = pino(
+          { level: this.level },
+          pinoMultiStream([{ stream: process.stdout }, { stream: this.streamToElastic }]),
+        );
       } else {
         this.logger = pino({ level: this.level });
       }

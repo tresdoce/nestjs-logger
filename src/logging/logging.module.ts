@@ -20,7 +20,7 @@ export class LoggingModule {
         },
         {
           provide: LOGGING_OPTIONS,
-          useFactory: async (configService: ConfigService) => configService,
+          useFactory: async (configService: ConfigService) => configService.get('config'),
           inject: [ConfigService],
         },
         LoggingService,
