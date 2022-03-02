@@ -4,7 +4,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import * as _ from 'lodash';
 
 import { LoggingService } from './service/logging.service';
-import { LOGGING_MODULE_OPTIONS } from './constants/logging.constants';
+import { LEVEL_OPTIONS, LOGGING_MODULE_OPTIONS } from './constants/logging.constants';
 import { ElasticSearchConfig, LoggingModuleLevel } from './types';
 
 @Global()
@@ -17,13 +17,13 @@ export class LoggingModule {
       imports: [ConfigModule],
       providers: [
         {
+          provide: LEVEL_OPTIONS,
+          useValue: level,
+        },
+        {
           provide: LOGGING_MODULE_OPTIONS,
           useFactory: async (configService: ConfigService) => {
-            const config = configService.get('config');
-            return {
-              config,
-              level,
-            };
+            return configService;
           },
           inject: [ConfigService],
         },

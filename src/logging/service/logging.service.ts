@@ -3,30 +3,30 @@ import * as path from 'path';
 import * as fs from 'fs';
 import * as _ from 'lodash';
 import pino from 'pino';
-import { LoggingModuleLevel, LoggingModuleOptions, LogType } from '../types';
-import { LOGGING_MODULE_OPTIONS } from '../constants/logging.constants';
+import { LoggingModuleLevel, LogType } from '../types';
+import { LEVEL_OPTIONS, LOGGING_MODULE_OPTIONS } from '../constants/logging.constants';
+import { ConfigService } from '@nestjs/config';
 const pinoElasticSearch = require('pino-elasticsearch');
 @Injectable()
 export class LoggingService implements LoggerService {
   private readonly logger: pino.Logger;
   private readonly streamToElastic: any;
   constructor(
-    @Inject(LOGGING_MODULE_OPTIONS) private readonly loggingModuleOptions?: LoggingModuleOptions,
+    @Inject(LEVEL_OPTIONS) private readonly level: LoggingModuleLevel,
+    @Inject(LOGGING_MODULE_OPTIONS) private readonly loggingModuleOptions: ConfigService,
   ) {
     const {
-      level,
-      config: {
-        server: { isProd },
-        elasticConfig,
-      },
-      config,
-    } = this.loggingModuleOptions;
+      server: { isProd },
+      elasticConfig,
+      server,
+    } = this.loggingModuleOptions.get('config');
+
     if (isProd) {
-      if (_.has(config, 'elasticConfig') && !_.isEmpty(elasticConfig)) {
+      if (_.has(server, 'elasticConfig') && !_.isEmpty(elasticConfig)) {
         this.streamToElastic = pinoElasticSearch(elasticConfig);
-        this.logger = pino({ level }, this.streamToElastic);
+        this.logger = pino({ level: this.level }, this.streamToElastic);
       } else {
-        this.logger = pino({ level });
+        this.logger = pino({ level: this.level });
       }
     } else {
       this.logger = pino({
@@ -36,13 +36,9 @@ export class LoggingService implements LoggerService {
             colorize: true,
           },
         },
-        level,
+        level: this.level,
       });
     }
-  }
-
-  public getLoggerInfo() {
-    return this.logger;
   }
 
   public readFile(pathSegment: string, filename: string) {

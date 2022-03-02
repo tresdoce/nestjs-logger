@@ -17,15 +17,6 @@ const mockedManifest = {
   version: '1.0.0',
 };
 
-const executionContext: any = {
-  switchToHttp: jest.fn().mockReturnThis(),
-  getRequest: jest.fn().mockReturnThis(),
-  getResponse: jest.fn().mockReturnThis(),
-  getClass: jest.fn().mockReturnThis(),
-  getHandler: jest.fn().mockReturnThis(),
-  getType: jest.fn().mockReturnThis(),
-};
-
 describe('LoggingService development', () => {
   let loggingService: LoggingService;
   let app: INestApplication;
@@ -53,11 +44,6 @@ describe('LoggingService development', () => {
 
   it('should be defined', () => {
     expect(loggingService).toBeInstanceOf(LoggingService);
-  });
-
-  it('should be return logger info', () => {
-    expect(loggingService.getLoggerInfo()).toEqual(expect.any(Object));
-    expect(loggingService.getLoggerInfo().levelVal).toEqual(10);
   });
 
   it('Should return a GenericLog object', () => {
@@ -194,9 +180,45 @@ describe('LoggingService prod', () => {
   it('should be defined', () => {
     expect(loggingService).toBeInstanceOf(LoggingService);
   });
+});
 
-  it('should be return logger info', () => {
-    expect(loggingService.getLoggerInfo()).toEqual(expect.any(Object));
-    expect(loggingService.getLoggerInfo().levelVal).toEqual(30);
+const mockedProdConfigWithElastic = {
+  config: {
+    server: {
+      isProd: true,
+    },
+    elasticConfig: {
+      index: 'test',
+      node: 'http://localhost:9200',
+      Connection: jest.fn().mockReturnThis(),
+      auth: {
+        username: '',
+        password: '',
+      },
+    },
+  },
+};
+
+describe('LoggingService prod with elastic config', () => {
+  let loggingService: LoggingService;
+  let app: INestApplication;
+
+  beforeEach(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      imports: [
+        ConfigModule.forRoot({
+          isGlobal: true,
+          load: [jest.fn().mockImplementation(() => mockedProdConfigWithElastic)],
+        }),
+        LoggingModule.register(),
+      ],
+    }).compile();
+    app = module.createNestApplication();
+    await app.init();
+    loggingService = module.get<LoggingService>(LoggingService);
+  });
+
+  it('should be defined', () => {
+    expect(loggingService).toBeInstanceOf(LoggingService);
   });
 });
