@@ -28,9 +28,7 @@ export class LoggingService implements LoggerService {
         this.streamToElastic = pinoElasticSearch({
           index: 'api-',
           node: 'http://localhost:9200',
-          /*consistency: 'one',
           'es-version': 7,
-          'flush-bytes': 1000,*/
           ...elasticConfig,
         });
         this.logger = pino(
