@@ -1,11 +1,4 @@
-import {
-  ExecutionContext,
-  HttpStatus,
-  Inject,
-  Injectable,
-  LoggerService,
-  mixin,
-} from '@nestjs/common';
+import { ExecutionContext, HttpStatus, Inject, Injectable, LoggerService } from '@nestjs/common';
 import * as path from 'path';
 import * as fs from 'fs';
 import * as _ from 'lodash';
@@ -67,40 +60,42 @@ export class LoggingService implements LoggerService {
   }
 
   public log(message: any) {
+    const log = this.getGenericLog('info');
+    log['message'] = message;
     this.logger.info(message);
   }
 
-  public info(message: any, context?: string) {
+  public info(message: any, context?: any) {
     const log = this.getGenericLog('info');
     log['message'] = message;
     context ? this.logger.info({ context }, log) : this.logger.info(log);
   }
 
-  public error(message: any, context?: string) {
+  public error(message: any, context?: any) {
     const log = this.getGenericLog('error');
     log['message'] = message;
     context ? this.logger.error({ context }, log) : this.logger.error(log);
   }
 
-  public warn(message: any, context?: string) {
+  public warn(message: any, context?: any) {
     const log = this.getGenericLog('warn');
     log['message'] = message;
     context ? this.logger.warn({ context }, log) : this.logger.warn(log);
   }
 
-  public fatal(message: any, context?: string) {
+  public fatal(message: any, context?: any) {
     const log = this.getGenericLog('fatal');
     log['message'] = message;
     context ? this.logger.fatal({ context }, log) : this.logger.fatal(log);
   }
 
-  public debug(message: any, context?: string) {
+  public debug(message: any, context?: any) {
     const log = this.getGenericLog('debug');
     log['message'] = message;
     context ? this.logger.debug({ context }, log) : this.logger.debug(log);
   }
 
-  public trace(message: any, context?: string) {
+  public trace(message: any, context?: any) {
     const log = this.getGenericLog('trace');
     log['message'] = message;
     context ? this.logger.trace({ context }, log) : this.logger.trace(log);
