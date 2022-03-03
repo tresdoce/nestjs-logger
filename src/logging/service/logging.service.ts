@@ -5,7 +5,6 @@ import * as _ from 'lodash';
 import pino from 'pino';
 const pinoElasticSearch = require('pino-elasticsearch');
 const pinoMultiStream = require('pino-multi-stream').multistream;
-//const ecsFormat = require('@elastic/ecs-pino-format')()
 
 import { LEVEL_OPTIONS, LOGGING_OPTIONS } from '../constants/logging.constants';
 import { LoggingModuleLevel, LogType } from '../types';
