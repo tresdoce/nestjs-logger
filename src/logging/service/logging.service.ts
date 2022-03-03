@@ -1,4 +1,11 @@
-import { ExecutionContext, HttpStatus, Inject, Injectable, LoggerService } from '@nestjs/common';
+import {
+  ExecutionContext,
+  HttpStatus,
+  Inject,
+  Injectable,
+  LoggerService,
+  mixin,
+} from '@nestjs/common';
 import * as path from 'path';
 import * as fs from 'fs';
 import * as _ from 'lodash';
