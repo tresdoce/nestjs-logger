@@ -14,6 +14,7 @@ import { LoggingModuleLevel, LogType } from '../types';
 export class LoggingService implements LoggerService {
   private readonly logger: pino.Logger;
   private readonly streamToElastic: any;
+
   constructor(
     @Inject(LEVEL_OPTIONS) private readonly level: LoggingModuleLevel,
     @Inject(LOGGING_OPTIONS) private readonly loggingOptions?: any,
@@ -32,7 +33,9 @@ export class LoggingService implements LoggerService {
           ...elasticConfig,
         });
         this.logger = pino(
-          { level: this.level },
+          {
+            level: this.level,
+          },
           pinoMultiStream([{ stream: process.stdout }, { stream: this.streamToElastic }]),
         );
       } else {
@@ -102,12 +105,14 @@ export class LoggingService implements LoggerService {
     timestamp?: number,
   ): any {
     const packageInfo = this.readFile(__dirname, '../package.json');
+
     return {
-      '@timestamp': timestamp ? timestamp : Date.now(),
+      application_name: process.env.npm_package_name,
+      application_version: process.env.npm_package_version,
       logger_name: packageInfo.name,
+      logger_version: packageInfo.version,
+      '@timestamp': timestamp ? timestamp : Date.now(),
       log_level: loggingLevel.toUpperCase(),
-      build_version: process.env.npm_package_version,
-      build_parent_version: packageInfo.version,
       log_type: logType,
     };
   }
@@ -156,7 +161,7 @@ export class LoggingService implements LoggerService {
   }
 
   private static addHttpInfo(request: any, jsonLog: any) {
-    jsonLog['http_request_address'] = request.protocol + '://' + request.get('host') + request.path;
+    jsonLog['http_request_address'] = `${request.protocol}://${request.get('host')}${request.path}`;
     jsonLog['http_request_query_string'] = request.query;
     jsonLog['http_request_method'] = request.method;
     jsonLog['http_request_path'] = request.path;
