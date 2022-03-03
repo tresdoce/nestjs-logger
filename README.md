@@ -88,7 +88,7 @@ import { LoggingModule } from '@tresdoce/nestjs-logger';
 
 ## 👨‍💻️ Uso
 
-Para poder hacer uso de algún metódo del servicio que se exporta mediante este módulo, debes inyectar el token **LOGGING_SERVICE** en el constructor del servicio donde vas a utilizarlo, tipandolo como **LoggingService**.
+Para poder hacer uso de algún metódo del servicio que se exporta mediante este módulo, debes inyectar el **LoggingService** en el constructor del componente donde vas a utilizarlo, definiendo el type como **LoggingService**.
 
 Logs disponibles:
 `log`
