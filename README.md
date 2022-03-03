@@ -56,14 +56,15 @@ Para utilizar este módulo, es necesario instanciarlo en la creación de la `app
 
 ```typescript
 // ./src/main.ts
-import { LoggingInterceptor, LoggingService, LOGGING_SERVICE } from '@tresdoce/nestjs-logger';
+import { LoggingInterceptor, LoggingService } from '@tresdoce/nestjs-logger';
+import { config } from './config';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
-    logger: new LoggingService({isProd: process.env.NODE_ENV === "production", level: "info"}),
+    logger: new LoggingService('info', config()),
   });
   ...
-  app.useGlobalInterceptors(new LoggingInterceptor(app.get<LoggingService>(LOGGING_SERVICE)));
+  app.useGlobalInterceptors(new LoggingInterceptor(app.get<LoggingService>(LoggingService)));
   ...
 }
 ```
@@ -71,7 +72,6 @@ async function bootstrap() {
 ```typescript
 // ./src/app.module.ts
 import { LoggingModule } from '@tresdoce/nestjs-logger';
-...
 
 @Module({
   ...
@@ -92,24 +92,25 @@ Para poder hacer uso de algún metódo del servicio que se exporta mediante este
 
 Logs disponibles:
 `log`
+`info`
 `error`
 `warn`
 `debug`
-`verbose`
+`trace`
 
 ```typescript
 // ./src/app.controller.ts
 import { Inject, Injectable } from '@nestjs/common';
-import { LoggingService, LOGGING_SERVICE } from '@tresdoce/nestjs-logger';
+import { LoggingService } from '@tresdoce/nestjs-logger';
 ...
 @Injectable()
 export class AppService {
   constructor(
-    @Inject(LOGGING_SERVICE) private logger: LoggingService,
+    @Inject(LoggingService) private logger: LoggingService,
   ) {}
 
   getHello(): string {
-    this.logger.log("Log de prueba", "ContextoElastic");
+    this.logger.log('this is a log');
   }
 }
 ```
@@ -122,82 +123,117 @@ Los diferentes formatos de logging según el metódo que estés invocando.
 
 - Tipo log
 
+```typescript
+this.logger.log('This is a log message');
+```
+
+```bash
+[1641844177933] INFO (24552 on VDINAME): This is a log message
+```
+
+- Tipo info
+
+```typescript
+this.logger.info('This is a info message', 'This is an info context');
+```
+
 ```bash
 [1641844177933] INFO (24552 on VDINAME):
     context: "This is an info context"
     msg: {
+      "application_name": "nestjs-starter",
+      "application_version": "0.0.1",
       "logger_name": "@tresdoce/nestjs-logger",
-      "@timestamp": 1641844177933,
+      "logger_version": "0.0.1",
+      "@timestamp": 1646350040866,
       "log_level": "INFO",
-      "build_version": "1.0.0",
-      "build_parent_version": "0.0.1",
       "log_type": "DEFAULT",
-      "message": "This is an info log"
+      "message": "This is a info message"
     }
 ```
 
 - Tipo error
 
+```typescript
+this.logger.error('This is a error message', 'This is an error context');
+```
+
 ```bash
 [1641844177936] ERROR (24552 on VDINAME):
     context: "This is an error context"
     msg: {
+      "application_name": "nestjs-starter",
+      "application_version": "0.0.1",
       "logger_name": "@tresdoce/nestjs-logger",
-      "@timestamp": 1641844177936,
+      "logger_version": "0.0.1",
+      "@timestamp": 1646350040866,
       "log_level": "ERROR",
-      "build_version": "1.0.0",
-      "build_parent_version": "0.0.1",
       "log_type": "DEFAULT",
-      "message": "This is an error log",
-      "stack_trace": "This is an error log"
+      "message": "This is a error message"
+      "stack_trace": "This is a error message"
     }
 ```
 
 - Tipo warn
 
+```typescript
+this.logger.warn('This is a warn message', 'This is an warn context');
+```
+
 ```bash
 [1641844177939] WARN (24552 on VDINAME):
-    context: "This is a warn context"
+    context: "This is an warn context"
     msg: {
+      "application_name": "nestjs-starter",
+      "application_version": "0.0.1",
       "logger_name": "@tresdoce/nestjs-logger",
-      "@timestamp": 1641844177939,
+      "logger_version": "0.0.1",
+      "@timestamp": 1646350040866,
       "log_level": "WARN",
-      "build_version": "1.0.0",
-      "build_parent_version": "0.0.1",
       "log_type": "DEFAULT",
-      "message": "This is a warn log"
+      "message": "This is a warn message"
     }
 ```
 
 - Tipo debug
 
+```typescript
+this.logger.debug('This is a debug message', 'This is an debug context');
+```
+
 ```bash
 [1641844177943] DEBUG (24552 on VDINAME):
-    context: "This is a debug context"
+    context: "This is an debug context"
     msg: {
+      "application_name": "nestjs-starter",
+      "application_version": "0.0.1",
       "logger_name": "@tresdoce/nestjs-logger",
-      "@timestamp": 1641844177943,
+      "logger_version": "0.0.1",
+      "@timestamp": 1646350040866,
       "log_level": "DEBUG",
-      "build_version": "1.0.0",
-      "build_parent_version": "0.0.1",
       "log_type": "DEFAULT",
-      "message": "This is a debug log"
+      "message": "This is a debug message"
     }
 ```
 
 - Tipo verbose
 
+```typescript
+this.logger.trace('This is a trace message', 'This is an trace context');
+```
+
 ```bash
 [1641844177946] TRACE (24552 on VDINAME):
-    context: "This is a verbose context"
+    context: "This is an trace context"
     msg: {
+      "application_name": "nestjs-starter",
+      "application_version": "0.0.1",
       "logger_name": "@tresdoce/nestjs-logger",
-      "@timestamp": 1641844177946,
+      "logger_version": "0.0.1",
+      "@timestamp": 1646350040866,
       "log_level": "TRACE",
-      "build_version": "1.0.0",
-      "build_parent_version": "0.0.1",
       "log_type": "DEFAULT",
-      "message": "This is a verbose log"
+      "message": "This is a trace message"
     }
 ```
 
