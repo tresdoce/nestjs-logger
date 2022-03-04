@@ -68,14 +68,17 @@ describe('LoggingInterceptor', () => {
   });
 
   it('should return an LoggingInterceptor instance', () => {
+    const timeRequest = Date.now();
+    const requestDuration = Date.now() - timeRequest;
+
     loggingService.readFile = jest.fn().mockImplementation(() => mockedManifest);
     const interceptor: LoggingInterceptor = new LoggingInterceptor(loggingService);
+
+    const interceptorSpy = jest.spyOn(interceptor, 'logInterceptorResponse');
 
     const callHandler: any = {
       handle: jest.fn(() => ({
         pipe: jest.fn(() => {
-          const timeRequest = Date.now();
-          const requestDuration = Date.now() - timeRequest;
           interceptor.logInterceptorResponse(
             timeRequest,
             executionContext,
@@ -102,6 +105,10 @@ describe('LoggingInterceptor', () => {
       })),
     };
     interceptor.intercept(executionContext, callHandler);
+
     expect(callHandler.handle).toBeCalledTimes(1);
+    expect(interceptorSpy).toBeCalledTimes(1);
+
+    //expect(interceptor.logInterceptorResponse).toBeCalledWith(timeRequest, executionContext, request, response, body)
   });
 });
