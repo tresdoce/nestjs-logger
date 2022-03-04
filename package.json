@@ -1,6 +1,6 @@
 {
   "name": "@tresdoce/nestjs-logger",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "NestJS logging module",
   "author": {
     "name": "Maximiliano \"Mex\" Delgado",
